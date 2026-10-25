@@ -29,6 +29,44 @@ fills and it clicks. In the library, flick your pointing finger sideways to swip
   (official 30 s previews you can remix, plus related songs) and the Internet Archive (full-length
   Creative Commons / public-domain tracks), and links out to Apple Music, Spotify and YouTube. It
   does not look for unlicensed copies of commercial songs.
+* **Online:** make a room and share the 5-letter code (up to 6 players). The host picks a song,
+  everyone starts on the same server-timed beat and jams for 90 s. You see a live standings board
+  and every opponent's hand skeleton streaming in real time. Podium finishes earn bonus Cognus.
+* **Playlists:** sets with sections (warm-up / peak / cool-down…) you play straight through.
+  Auto-build sorts your library by tempo.
+
+## Progression
+
+* **Account:** email + password, Google, or guest (a guest can later add an email and keep
+  everything). Without an account, progress lives in this browser and carries over when you sign in.
+* **Ranks:** Bronze → Silver → Gold → Platinum → Diamond → Legend by lifetime Cognus.
+* **Season pass:** 30 tiers; every Cognus earned this season is pass XP. Tiers unlock bonus Cognus,
+  wallpapers, songs, album rows, HUD themes and titles.
+* **Daily challenges:** three a day, the same for everyone, for bonus Cognus.
+* **Leaderboard:** live top 50 by all-time Cognus, this season, best session or online wins.
+* **Market:** spend Cognus on home wallpapers (recolour the waves shader), extra generated songs,
+  album rows for the home page, free-play HUD colour themes and name titles. *Customize home*
+  sets the album row, its speed, curve and cover size.
+
+## Firebase
+
+Accounts, the leaderboard and online rooms use Firebase Auth + Realtime Database. Everything else
+works without it.
+
+1. Create a Firebase project, add a **Web app**, and create a **Realtime Database**.
+2. Authentication → Sign-in method: enable **Email/Password**, **Google** and **Anonymous**.
+3. Copy the web config into `.env.local` (see `.env.example`), and add the same variables to Vercel.
+4. Publish the rules: paste `database.rules.json` into Realtime Database → Rules (or
+   `npx firebase-tools deploy --only database`).
+
+To try it locally without a project: `npm run emulators` (needs Java), then use
+`NEXT_PUBLIC_FIREBASE_EMULATOR=1` with `NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-handjam` and
+`NEXT_PUBLIC_FIREBASE_DATABASE_URL=http://127.0.0.1:9000?ns=demo-handjam-default-rtdb`.
+
+The rules keep profiles private, stop anyone writing someone else's scores, cap how much Cognus
+one write can add, keep leaderboard rows at or below the stored totals, and let only the host
+control a room. Scores are still computed in the browser, so treat the leaderboard as friendly
+competition rather than anti-cheat proof.
 
 ## Run it
 
@@ -62,5 +100,9 @@ song ─► AudioWorklet: varispeed + grain pitch shifter ─► bass shelf ─�
 | `src/lib/tracks.ts` | Generated music recipes |
 | `src/lib/library.ts` | Uploads (IndexedDB), found songs, decoding |
 | `src/lib/session.ts` | Session recording and Cognus scoring |
+| `src/lib/account.ts` | Auth, profile (balance, pass, inventory, playlists), banking sessions |
+| `src/lib/catalog.ts` | Market items, ranks, season pass tiers, daily challenges |
+| `src/lib/online.ts` | Online rooms: join codes, synced start, live scores and skeletons |
+| `database.rules.json` | Realtime Database security rules |
 | `api/index.py` | Python music finder |
 | `src/components/ui/*` | shadcn-style UI components (player, liquid metal button, disc carousel, orb, session bento) |

@@ -4,6 +4,8 @@
 :root {
   --ink: #ffffff;
   --wave: #4a52ff;
+  --hud: #ffffff;
+  --hud-track: #1d1f24;
 }
 
 @theme inline {

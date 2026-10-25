@@ -5,20 +5,23 @@ import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import DiscCascadeCarousel, { type DiscCascadeItem } from "@/components/ui/disc-cascade-carousel";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { onSwipe, player } from "@/lib/engine";
+import { ownedSet, useAccount } from "@/lib/account";
 import { allTracks, type Track } from "@/lib/library";
 
 /** Your songs as discs. Swipe your pointing finger sideways to browse, point at "Play this" to pick. */
 export function LibraryView({ currentId, onPlayed }: { currentId: string; onPlayed: () => void }) {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [index, setIndex] = useState(0);
+  const { profile } = useAccount();
+  const owned = useMemo(() => ownedSet(profile), [profile]);
 
   useEffect(() => {
-    void allTracks().then((t) => {
+    void allTracks(owned).then((t) => {
       setTracks(t);
       const at = t.findIndex((x) => x.id === currentId);
       setIndex(at >= 0 ? at : 0);
     });
-  }, [currentId]);
+  }, [currentId, owned]);
 
   // hand swipes move through the discs
   useEffect(() => onSwipe((dir) => setIndex((i) => Math.max(0, Math.min(tracks.length - 1, i + dir)))), [tracks.length]);

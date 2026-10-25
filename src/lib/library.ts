@@ -1,6 +1,6 @@
 "use client";
 
-import { RECIPES, renderRecipe, type Recipe } from "./tracks";
+import { PREMIUM_RECIPES, RECIPES, renderRecipe, type Recipe } from "./tracks";
 
 /**
  * Everything you can play: generated tracks, songs you've uploaded before (kept in this
@@ -80,11 +80,15 @@ export function rememberFound(t: Extract<Track, { kind: "found" }>) {
   }
 }
 
-export const generatedTracks = (): Track[] => RECIPES.map((r) => ({ id: r.id, kind: "generated", title: r.title, subtitle: r.mood, recipe: r }));
+/** Free generated tracks, plus any premium ones you own. */
+export const generatedTracks = (owned: Set<string> = new Set()): Track[] =>
+  [...RECIPES, ...PREMIUM_RECIPES.filter((r) => owned.has(r.id))].map((r) => ({ id: r.id, kind: "generated", title: r.title, subtitle: r.mood, recipe: r }));
 
-export async function allTracks(): Promise<Track[]> {
-  return [...(await listUploads()), ...listFound(), ...generatedTracks()];
+export async function allTracks(owned: Set<string> = new Set()): Promise<Track[]> {
+  return [...(await listUploads()), ...listFound(), ...generatedTracks(owned)];
 }
+
+export const trackById = async (id: string, owned: Set<string> = new Set()) => (await allTracks(owned)).find((t) => t.id === id);
 
 /** Decode a track into audio the deck can play. */
 export async function decodeTrack(ctx: AudioContext, t: Track): Promise<AudioBuffer> {

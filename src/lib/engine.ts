@@ -102,15 +102,25 @@ export const player = {
     void deck.resume();
     deck.setPlaying(true);
   },
+  pause: () => getEngine().deck.setPlaying(false),
   next: () => void getEngine().deck.next(),
   prev: () => void getEngine().deck.prev(),
   seek: (seconds: number) => getEngine().deck.seek(seconds),
   setShuffle: (on: boolean) => void (getEngine().deck.shuffle = on),
   setRepeat: (on: boolean) => void (getEngine().deck.repeat = on),
-  playTrack(t: Track) {
+  playTrack(t: Track, autostart = true) {
     const { deck } = getEngine();
     void deck.resume();
-    return deck.play(t);
+    return deck.play(t, autostart);
+  },
+  /** Play a list in order (playlists): each song moves on to the next when it ends. */
+  playQueue(tracks: Track[], start = 0) {
+    const { deck } = getEngine();
+    if (!tracks.length) return;
+    void deck.resume();
+    deck.queue = tracks;
+    deck.repeat = false;
+    return deck.play(tracks[start]);
   },
   /** Back to how the song really sounds. */
   reset() {

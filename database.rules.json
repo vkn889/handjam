@@ -1,0 +1,62 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['name', 'cognus', 'lifetime'])",
+        "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 24" },
+        "cognus": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && (!data.exists() ? newData.val() <= 100000 : newData.val() - data.val() <= 25000)"
+        },
+        "lifetime": {
+          ".validate": "newData.isNumber() && (!data.exists() ? newData.val() <= 100000 : newData.val() >= data.val() && newData.val() - data.val() <= 25000)"
+        },
+        "best": { ".validate": "newData.isNumber() && newData.val() <= 20000" },
+        "wins": { ".validate": "newData.isNumber() && (!data.exists() || newData.val() - data.val() <= 1)" }
+      }
+    },
+    "leaderboard": {
+      ".read": true,
+      ".indexOn": ["lifetime", "seasonXp", "best", "wins"],
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['name', 'lifetime', 'seasonXp', 'best', 'wins'])",
+        "name": { ".validate": "newData.isString() && newData.val().length <= 24" },
+        "title": { ".validate": "newData.isString() && newData.val().length <= 32" },
+        "lifetime": { ".validate": "newData.isNumber() && newData.val() <= root.child('users/' + $uid + '/lifetime').val()" },
+        "seasonXp": { ".validate": "newData.isNumber() && newData.val() <= root.child('users/' + $uid + '/lifetime').val()" },
+        "best": { ".validate": "newData.isNumber() && newData.val() <= root.child('users/' + $uid + '/best').val()" },
+        "wins": { ".validate": "newData.isNumber() && newData.val() <= root.child('users/' + $uid + '/wins').val()" },
+        "updatedAt": { ".validate": "newData.isNumber()" },
+        "$other": { ".validate": false }
+      }
+    },
+    "rooms": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null && data.child('meta/host').val() === auth.uid",
+        "meta": {
+          ".write": "auth != null && (!data.exists() ? newData.child('host').val() === auth.uid : data.child('host').val() === auth.uid)",
+          ".validate": "newData.hasChildren(['host', 'status', 'song'])",
+          "status": { ".validate": "newData.val() === 'lobby' || newData.val() === 'countdown' || newData.val() === 'playing' || newData.val() === 'done'" }
+        },
+        "players": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && (data.exists() || newData.parent().parent().child('meta').exists())",
+            "name": { ".validate": "newData.isString() && newData.val().length <= 24" },
+            "cognus": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 20000" },
+            "final": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 20000" }
+          }
+        },
+        "hands": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid",
+            "l": { ".validate": "newData.isString() && newData.val().length <= 400" },
+            "r": { ".validate": "newData.isString() && newData.val().length <= 400" }
+          }
+        }
+      }
+    }
+  }
+}

@@ -12,10 +12,21 @@ import { NavBar, type NavTarget } from "@/components/NavBar";
 import { Onboarding } from "@/components/Onboarding";
 import { ResultsView } from "@/components/ResultsView";
 import { TrackCover } from "@/components/TrackCover";
+import { AccountView } from "@/components/views/AccountView";
+import { LeaderboardView } from "@/components/views/LeaderboardView";
+import { MarketView } from "@/components/views/MarketView";
+import { OnlineView } from "@/components/views/OnlineView";
+import { PassView } from "@/components/views/PassView";
+import { PlaylistsView } from "@/components/views/PlaylistsView";
+import { bankSession, useAccount, type Award } from "@/lib/account";
+import { itemById } from "@/lib/catalog";
 import { currentTrack, endSession, player, startSession, useEngine, useViewport } from "@/lib/engine";
-import { totalCognus, type SessionSummary } from "@/lib/session";
+import { useRoom } from "@/lib/online";
+import type { SessionSummary } from "@/lib/session";
 
-type View = "home" | "onboarding" | "remix" | "library" | "finder" | "results";
+type View =
+  | "home" | "onboarding" | "remix" | "library" | "finder" | "results"
+  | "online" | "playlists" | "pass" | "leaderboard" | "market" | "account";
 const SESSION_SECONDS = 120;
 
 export default function Page() {
@@ -23,12 +34,14 @@ export default function Page() {
   const { w, h } = useViewport();
   const [view, setView] = useState<View>("home");
   const [summary, setSummary] = useState<SessionSummary | null>(null);
-  const [cognus, setCognus] = useState(0);
+  const [award, setAward] = useState<Award | null>(null);
   const afterOnboarding = useRef<"free" | "session">("free");
+  const { profile } = useAccount();
+  const room = useRoom();
   const camOk = !!state?.camera.ok;
   const inSession = !!state?.session;
-
-  useEffect(() => setCognus(totalCognus()), [view]);
+  const inMatch = view === "online" && (room.meta?.status === "countdown" || room.meta?.status === "playing");
+  const theme = itemById(profile.equipped.theme)?.colors;
 
   const onboarded = () => {
     try {
@@ -45,8 +58,12 @@ export default function Page() {
   }, []);
 
   const finishSession = useCallback(() => {
-    setSummary(endSession());
+    const s = endSession();
+    setSummary(s);
+    setAward(null);
     setView("results");
+    // Bank it: balance, lifetime (rank), season pass XP, daily challenges.
+    if (s) void bankSession(s).then(setAward);
   }, []);
 
   const navigate = (t: NavTarget) => {
@@ -58,10 +75,14 @@ export default function Page() {
       } else begin(t);
       return;
     }
-    // leaving the remix screen mid-session ends the session (picking another song doesn't)
-    if (inSession && t !== "library" && t !== "finder") endSession();
+    // leaving the remix screen mid-session ends (and banks) it; picking another song doesn't
+    if (inSession && !inMatch && t !== "library" && t !== "finder") {
+      finishSession();
+      return;
+    }
     if (t === "stats") {
       setSummary(null);
+      setAward(null);
       setView("results");
     } else setView(t);
   };
@@ -76,33 +97,35 @@ export default function Page() {
   }, [begin]);
 
   // sessions end on their own after two minutes
+  // (online matches run their own clock)
   const sessionSeconds = state?.session?.seconds ?? 0;
   useEffect(() => {
-    if (sessionSeconds >= SESSION_SECONDS) finishSession();
-  }, [sessionSeconds, finishSession]);
+    if (view !== "online" && sessionSeconds >= SESSION_SECONDS) finishSession();
+  }, [view, sessionSeconds, finishSession]);
 
   // Escape goes back home
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape" || view === "finder") return;
+      if (e.key !== "Escape" || view === "finder" || inMatch) return;
       if (inSession) endSession();
       setView("home");
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [view, inSession]);
+  }, [view, inSession, inMatch]);
 
   const t = state?.track;
-  const showCamera = view === "remix" || view === "onboarding" || view === "library" || view === "finder";
+  const showCamera = view === "remix" || view === "onboarding" || view === "library" || view === "finder" || inMatch;
+  const showHud = view === "remix" || view === "onboarding" || inMatch;
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black select-none">
       {showCamera && <CameraBackdrop live={false} dim={view === "onboarding" ? 0.2 : 0} />}
       {view === "home" && <Home songTitle={t?.title ?? ""} />}
 
-      {state && camOk && (view === "remix" || view === "onboarding") && <HandOverlay state={state} width={w} height={h} />}
+      {state && camOk && showHud && <HandOverlay state={state} width={w} height={h} theme={theme} />}
 
-      {state && !camOk && (view === "remix" || view === "onboarding") && (
+      {state && !camOk && showHud && (
         <Notice title={state.camera.error ? "Camera needed" : "Starting the camera…"}>
           <p>{state.camera.error || "Allow camera access when your browser asks. Hand tracking runs on this device; nothing is uploaded."}</p>
         </Notice>
@@ -111,9 +134,16 @@ export default function Page() {
       {state && camOk && view === "onboarding" && <Onboarding state={state} onDone={finishOnboarding} />}
       {view === "library" && <LibraryView currentId={t?.id ?? ""} onPlayed={() => setView("remix")} />}
       {view === "finder" && <FinderView onPlayed={() => setView("remix")} />}
+      {view === "online" && <OnlineView />}
+      {view === "playlists" && <PlaylistsView onPlayed={() => setView("remix")} />}
+      {view === "pass" && <PassView />}
+      {view === "leaderboard" && <LeaderboardView />}
+      {view === "market" && <MarketView onPreviewHome={() => setView("home")} />}
+      {view === "account" && <AccountView />}
       {view === "results" && (
         <ResultsView
           summary={summary}
+          award={award}
           onAgain={() => {
             startSession();
             setView("remix");
@@ -156,7 +186,6 @@ export default function Page() {
 
       <NavBar
         view={view}
-        cognus={cognus}
         cameraOn={camOk}
         inSession={inSession}
         onNavigate={navigate}

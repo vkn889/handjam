@@ -39,6 +39,8 @@ export interface TrackedHand {
   middle: Pt;
   wrist: Pt;
   pinch: number;
+  /** all 21 landmarks, mirrored, 0..1 (for drawing a full skeleton) */
+  pts: Pt[];
 }
 
 export class HandTracker {
@@ -226,6 +228,7 @@ export class HandTracker {
       middle: pts[MIDDLE_TIP],
       wrist: pts[WRIST],
       pinch: pinch(pts),
+      pts,
     }));
     this.frame++;
     this.frameTimes.push(ts);

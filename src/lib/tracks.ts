@@ -76,6 +76,62 @@ export const RECIPES: Recipe[] = [
   },
 ];
 
+const Cm = [261.63, 311.13, 392], Fm = [174.61, 207.65, 261.63], Ab = [207.65, 261.63, 311.13], Gm = [196, 233.08, 293.66];
+const Dmaj7 = [146.83, 185, 220], Bm = [246.94, 293.66, 369.99], Gmaj = [196, 246.94, 293.66], A = [220, 277.18, 329.63];
+
+/** Songs you unlock in the market or the season pass. Same synth, new recipes. */
+export const PREMIUM_RECIPES: Recipe[] = [
+  {
+    id: "gen-trap", title: "Trap Bounce", mood: "Rolling hats, deep 808s", bpm: 140, bars: 8,
+    roots: [65.41, 87.31, 103.83, 98], chords: [Cm, Fm, Ab, Gm],
+    kick: "x......x..x.....", snare: "........x.......", hat: "xxxxx.xxxxxxx.xx", bass: "x......x..x.....",
+    bassWave: "sine", padWave: "pad", lead: { wave: "pluck", pattern: "x...x.x...x.x...", octave: 2, fromBar: 2 },
+    palette: ["#0d0d12", "#8b5cf6", "#f5f3ff"], pattern: "halftone",
+  },
+  {
+    id: "gen-bossa", title: "Bossa Breeze", mood: "Lazy nylon-string sunshine", bpm: 92, bars: 8,
+    roots: [73.42, 123.47, 98, 110], chords: [Dmaj7, Bm, Gmaj, A],
+    kick: "x..x....x..x....", snare: "..x..x...x..x...", hat: "x.x.x.x.x.x.x.x.", bass: "x..x....x..x....",
+    bassWave: "sine", padWave: "pluck", lead: { wave: "pluck", pattern: "x.x..x.x.x..x...", octave: 2, fromBar: 0 },
+    palette: ["#f4e7c5", "#2f7d5b", "#e4572e"], pattern: "sunburst",
+  },
+  {
+    id: "gen-dnb", title: "Jungle Rush", mood: "174 BPM drum & bass", bpm: 174, bars: 8,
+    roots: [73.42, 116.54, 87.31, 82.41], chords: [Dm, Bb, F, E],
+    kick: "x.........x.....", snare: "....x.......x...", hat: "x.xxx.x.x.xxx.x.", bass: "x.x...x.x.x...x.",
+    bassWave: "saw", padWave: "pad", lead: { wave: "square", pattern: "x.....x.....x...", octave: 2, fromBar: 4 },
+    palette: ["#0b1f14", "#2bd576", "#e8ff1f"], pattern: "stripes",
+  },
+  {
+    id: "gen-cathedral", title: "Synth Cathedral", mood: "Huge slow chords", bpm: 70, bars: 8,
+    roots: [110, 87.31, 130.81, 98], chords: [Am, F, C, G],
+    kick: "x...............", snare: "........x.......", hat: "................", bass: "x.......x.......",
+    bassWave: "sine", padWave: "saw", lead: { wave: "sine", pattern: "x...x...x...x...", octave: 2, fromBar: 2 },
+    palette: ["#12091f", "#5b3fa8", "#f1e9ff"], pattern: "rings",
+  },
+  {
+    id: "gen-reggae", title: "Island Skank", mood: "Off-beat chops, dub bass", bpm: 84, bars: 8,
+    roots: [98, 130.81, 146.83, 130.81], chords: [Gmaj, C, Dmaj7, C],
+    kick: "........x.......", snare: "........x.......", hat: "..x...x...x...x.", bass: "x..x..x...x.x...",
+    bassWave: "sine", padWave: "pluck", lead: { wave: "pluck", pattern: "..x...x...x...x.", octave: 1, fromBar: 0 },
+    palette: ["#0f5132", "#ffd23f", "#e63946"], pattern: "horizon",
+  },
+  {
+    id: "gen-sparkle", title: "Sparkle Pop", mood: "Bright, bouncy, shiny", bpm: 118, bars: 8,
+    roots: [130.81, 98, 110, 87.31], chords: [C, G, Am, F],
+    kick: "x...x...x...x...", snare: "....x.......x...", hat: "x.x.x.x.x.x.x.x.", bass: "x.x.x.x.x.x.x.x.",
+    bassWave: "square", padWave: "pluck", lead: { wave: "sine", pattern: "xx.x.xx.x.x.xx.x", octave: 2, fromBar: 0 },
+    palette: ["#ffd6ec", "#ff4fa3", "#6b2cff"], pattern: "mosaic",
+  },
+  {
+    id: "gen-anthem", title: "Victory Anthem", mood: "Stadium-sized season reward", bpm: 128, bars: 8,
+    roots: [98, 73.42, 82.41, 65.41], chords: [Gmaj, Dmaj7, Em, C],
+    kick: "x...x...x...x...", snare: "....x.......x...", hat: "x.x.x.x.x.x.x.x.", bass: "x.x.x.x.x.x.x.x.",
+    bassWave: "saw", padWave: "saw", lead: { wave: "square", pattern: "x.x.x...x.x.x...", octave: 2, fromBar: 2 },
+    palette: ["#0f0a00", "#e8b923", "#fff6cf"], pattern: "sunburst",
+  },
+];
+
 export function renderRecipe(ctx: BaseAudioContext, r: Recipe): AudioBuffer {
   const sr = ctx.sampleRate;
   const step = 60 / r.bpm / 4;

@@ -4,10 +4,11 @@ import { useMemo } from "react";
 import { RotateCcw } from "lucide-react";
 import { FinanceBento } from "@/components/ui/finance-bento";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
+import type { Award } from "@/lib/account";
 import { listSessions, type SessionSummary } from "@/lib/session";
 
 /** End-of-session screen: Cognus earned and everything the session collected. */
-export function ResultsView({ summary, onAgain }: { summary: SessionSummary | null; onAgain: () => void }) {
+export function ResultsView({ summary, award, onAgain }: { summary: SessionSummary | null; award?: Award | null; onAgain: () => void }) {
   const data = useMemo(() => {
     const all = listSessions();
     const current = summary ?? all[all.length - 1];
@@ -37,6 +38,14 @@ export function ResultsView({ summary, onAgain }: { summary: SessionSummary | nu
               <p className="mt-2 text-sm text-white/60">
                 Motion {b.motion} · Variety {b.variety} · Surprise {b.surprise} · Spread {b.spread} · Combos {b.combos} · Song switches {b.songs} · Resets {b.resets}
               </p>
+              {award && (award.bonus > 0 || award.rankUp || award.tiersGained > 0) && (
+                <p className="mt-2 flex flex-wrap gap-2 text-sm">
+                  {award.challenges.map((c) => <span key={c} className="rounded-full bg-[#E8FF1F]/15 px-3 py-1 text-[#E8FF1F]">Challenge done: {c}</span>)}
+                  {award.bonus > 0 && <span className="rounded-full bg-[#E8FF1F] px-3 py-1 font-semibold text-black">+{award.bonus} bonus</span>}
+                  {award.rankUp && <span className="rounded-full bg-white px-3 py-1 font-semibold text-black">Rank up: {award.rankUp}</span>}
+                  {award.tiersGained > 0 && <span className="rounded-full bg-white/15 px-3 py-1">+{award.tiersGained} pass tier{award.tiersGained > 1 ? "s" : ""}</span>}
+                </p>
+              )}
             </div>
             <LiquidMetalButton label="Play again" width={160} icon={<RotateCcw size={15} />} onClick={onAgain} />
           </div>

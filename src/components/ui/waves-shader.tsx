@@ -269,8 +269,12 @@ const FINISH = [0.0, 0.0, 0.0, 0.04];
 const TRANSFORM = [1.0, 0.0, 0.0, 0.0];
 const CURSOR = [0.0, 2.0, 0.65, 0.46]; // presence 0: cursor off
 
-export function WavesShader({ className }: { className?: string }) {
+const hexToRgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
+
+/** `colors`: four hex colours (dark → light) to recolour the waves, e.g. from a wallpaper. */
+export function WavesShader({ className, colors: palette }: { className?: string; colors?: readonly string[] }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const key = palette?.join(",") ?? "";
 
   useEffect(() => {
     const canvas = ref.current;
@@ -301,7 +305,7 @@ export function WavesShader({ className }: { className?: string }) {
 
     const U = (n: string) => gl.getUniformLocation(prog, n);
     const colors = new Float32Array(24);
-    COLORS.forEach((c, i) => colors.set(c, i * 3));
+    (key ? key.split(",").map(hexToRgb) : COLORS).forEach((c, i) => colors.set(c, i * 3));
     gl.uniform3fv(U("u_colors[0]") ?? U("u_colors"), colors);
     gl.uniform4fv(U("u_shape"), SHAPE);
     gl.uniform4fv(U("u_surface"), SURFACE);
@@ -344,7 +348,7 @@ export function WavesShader({ className }: { className?: string }) {
       gl.deleteBuffer(buf);
       gl.deleteProgram(prog);
     };
-  }, []);
+  }, [key]);
 
   return <canvas ref={ref} aria-hidden className={cn("pointer-events-none absolute inset-0 h-full w-full", className)} />;
 }
