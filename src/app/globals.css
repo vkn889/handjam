@@ -1,0 +1,44 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+:root {
+  --ink: #ffffff;
+  --wave: #4a52ff;
+}
+
+@theme inline {
+  --font-sans: var(--font-outfit);
+  --color-wave: var(--wave);
+}
+
+html,
+body {
+  background: #000;
+  color: var(--ink);
+  font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  overflow: hidden;
+}
+
+/* Soft shadow so white HUD text stays readable over any background */
+.hud-text {
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
+  letter-spacing: 0.02em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 1ms !important;
+  }
+}
+
+/* Buttons light up when the hand cursor (or mouse) is over them */
+.hand-btn {
+  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+.hand-btn:hover,
+.hand-btn[data-hover="true"] {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.35);
+}
