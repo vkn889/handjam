@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import heroSets from "@/data/hero-sets.json";
 import popular from "@/data/popular-albums.json";
 import { TiltedGridHero, type TiltedGridImage } from "@/components/ui/tilted-grid-hero";
@@ -63,7 +64,11 @@ export function Home({ songTitle }: { songTitle: string }) {
             Pinch to bend pitch and speed, stretch your middle fingers for bass and echo, spread your hands for volume.
           </p>
           <p className="hud-text mt-3 text-sm text-white/75">Now loaded: {songTitle || "Demo Loop"}</p>
-          <p className="hud-text absolute bottom-6 text-sm text-white/80">Point your index finger at a button and hold still for a second to pick it.</p>
+          <p className="hud-text absolute bottom-12 text-sm text-white/80">Point your index finger at a button and hold still for a second to pick it.</p>
+          <nav aria-label="Guides" className="hud-text absolute bottom-4 flex gap-5 text-xs text-white/70">
+            <Link href="/how-to-play" className="hover:text-white">How to play</Link>
+            <Link href="/combos" className="hover:text-white">Combo guide</Link>
+          </nav>
         </div>
       </TiltedGridHero>
     </div>
