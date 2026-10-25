@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Copy, Crown, LogIn, LogOut, Music, Play, Plus, RotateCcw, Users } from "lucide-react";
+import { ComboToast } from "@/components/ComboToast";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { Card, inputClass, Panel, Pill } from "@/components/ui/pill";
 import { bankSession, ownedSet, useAccount, type Award } from "@/lib/account";
@@ -301,6 +302,7 @@ function Match() {
         <div className="absolute left-1/2 top-[22%] -translate-x-1/2 text-center">
           <p className="hud-text text-xs font-semibold tracking-[0.3em] text-white/75">BATTLE · {left}s</p>
           <p className="hud-text text-3xl font-light"><span className="text-[#E8FF1F]">{state?.session?.cognus ?? room.players[room.uid]?.final ?? 0}</span> Cognus</p>
+          <ComboToast session={state?.session ?? null} />
           {left === 0 && <p className="hud-text mt-1 text-sm text-white/80">Waiting for everyone&apos;s score…</p>}
         </div>
       )}

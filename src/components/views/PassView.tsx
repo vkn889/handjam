@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, Gift, Lock, Sparkles } from "lucide-react";
 import { Bar, Card, Panel, Pill } from "@/components/ui/pill";
 import { claimTier, useAccount } from "@/lib/account";
+import { COMBOS, STYLE_PER_COMBO } from "@/lib/combos";
 import { dailyChallenges, itemById, rankFor, RANKS, SEASON, TIERS, tierFor, XP_PER_TIER, type Tier } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 
@@ -52,7 +53,7 @@ export function PassView() {
           <div className="mt-4 flex flex-wrap gap-1.5">
             {RANKS.map((r, i) => (
               <span key={r.name} className={cn("rounded-full px-2.5 py-1 text-[11px]", i <= rank.index ? "text-black" : "bg-white/5 text-white/40")} style={i <= rank.index ? { background: r.color } : undefined}>
-                {r.name} {r.at ? `${r.at / 1000}k` : ""}
+                {r.name} {r.at ? r.at.toLocaleString() : ""}
               </span>
             ))}
           </div>
@@ -118,6 +119,23 @@ export function PassView() {
             </Card>
           );
         })}
+      </div>
+
+      <h2 className="mt-8 text-xl font-light">How to earn Cognus: combos</h2>
+      <p className="text-sm text-white/55">
+        Only combos pay. Repeating the same one pays 40% less each time; landing a different one within 5 s chains
+        (+25% per link, up to ×2). Each different combo in a session adds a +{STYLE_PER_COMBO} style bonus.
+      </p>
+      <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {COMBOS.map((c) => (
+          <Card key={c.id}>
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="font-medium">{c.name}</span>
+              <span className="text-sm font-semibold text-[#E8FF1F]">{c.base}</span>
+            </div>
+            <p className="mt-1.5 text-sm leading-relaxed text-white/65">{c.how}</p>
+          </Card>
+        ))}
       </div>
     </Panel>
   );

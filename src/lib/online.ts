@@ -298,7 +298,7 @@ export function standings(players: Record<string, RoomPlayer>) {
 /** Bonus Cognus for finishing on the podium (only with company, and only if you scored). */
 export function placementBonus(place: number, count: number, score = 1) {
   if (count < 2 || score <= 0) return 0;
-  return [200, 100, 50][place] ?? 0;
+  return [25, 12, 6][place] ?? 0;
 }
 
 /** A win needs company and a score strictly ahead of second place. */

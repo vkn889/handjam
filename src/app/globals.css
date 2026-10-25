@@ -44,3 +44,14 @@ body {
   transform: scale(1.06);
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.35);
 }
+
+/* combo pop-up */
+@keyframes combo-pop {
+  0% { opacity: 0; transform: scale(0.7); }
+  15% { opacity: 1; transform: scale(1.08); }
+  30% { transform: scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.combo-pop { animation: combo-pop 1.8s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .combo-pop { animation: none; } }

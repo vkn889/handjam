@@ -7,12 +7,12 @@
         ".validate": "newData.hasChildren(['name', 'cognus', 'lifetime'])",
         "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 24" },
         "cognus": {
-          ".validate": "newData.isNumber() && newData.val() >= 0 && (!data.exists() ? newData.val() <= 100000 : newData.val() - data.val() <= 25000)"
+          ".validate": "newData.isNumber() && newData.val() >= 0 && (!data.exists() ? newData.val() <= 2000 : newData.val() - data.val() <= 2000)"
         },
         "lifetime": {
-          ".validate": "newData.isNumber() && (!data.exists() ? newData.val() <= 100000 : newData.val() >= data.val() && newData.val() - data.val() <= 25000)"
+          ".validate": "newData.isNumber() && (!data.exists() ? newData.val() <= 2000 : ((newData.val() >= data.val() && newData.val() - data.val() <= 2000) || (newData.val() === 0 && newData.parent().child('economy').val() !== data.parent().child('economy').val())))"
         },
-        "best": { ".validate": "newData.isNumber() && newData.val() <= 20000" },
+        "best": { ".validate": "newData.isNumber() && newData.val() <= 1500" },
         "wins": { ".validate": "newData.isNumber() && (!data.exists() || newData.val() - data.val() <= 1)" }
       }
     },
@@ -45,8 +45,8 @@
           "$uid": {
             ".write": "auth != null && auth.uid === $uid && (data.exists() || newData.parent().parent().child('meta').exists())",
             "name": { ".validate": "newData.isString() && newData.val().length <= 24" },
-            "cognus": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 20000" },
-            "final": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 20000" }
+            "cognus": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1500" },
+            "final": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1500" }
           }
         },
         "hands": {

@@ -30,7 +30,7 @@ import {
   type ItemKind,
 } from "./catalog";
 import { fb, firebaseEnabled } from "./firebase";
-import { listSessions, type SessionSummary } from "./session";
+import type { SessionSummary } from "./session";
 
 /**
  * Your HandJam profile: Cognus balance, lifetime total, season pass progress, what you
@@ -60,6 +60,8 @@ export interface HeroCustom {
 export interface Profile {
   name: string;
   createdAt: number;
+  /** which Cognus economy this profile was earned under */
+  economy: number;
   cognus: number;
   lifetime: number;
   best: number;
@@ -74,15 +76,17 @@ export interface Profile {
 
 export const DEFAULT_HERO: HeroCustom = { speed: 3.5, curve: 80, tileHeight: 30, includeMine: true };
 
-function freshProfile(name = "Player", fromHistory = true): Profile {
-  const history = fromHistory && typeof window !== "undefined" ? listSessions() : [];
-  const past = history.reduce((a, s) => a + s.cognus, 0);
+/** Bump when Cognus values change enough that old balances would be unfair. */
+const ECONOMY = 2;
+
+function freshProfile(name = "Player"): Profile {
   return {
     name,
     createdAt: Date.now(),
-    cognus: past,
-    lifetime: past,
-    best: Math.max(0, ...history.map((s) => s.cognus)),
+    economy: ECONOMY,
+    cognus: 0,
+    lifetime: 0,
+    best: 0,
     wins: 0,
     season: { id: SEASON.id, xp: 0, claimed: {} },
     inventory: Object.fromEntries(STARTER.map((id) => [id, true])),
@@ -108,6 +112,11 @@ function normalise(p: Partial<Profile> | null, name?: string): Profile {
     ),
     daily: { date: todayKey(), done: {}, ...(p?.daily ?? {}) },
   };
+  // Earned under the old, far more generous scoring: start progression over (keep playlists and looks).
+  if (out.economy !== ECONOMY) {
+    const fresh = freshProfile(out.name);
+    Object.assign(out, { economy: ECONOMY, cognus: 0, lifetime: 0, best: 0, wins: 0, season: fresh.season, inventory: fresh.inventory, equipped: fresh.equipped, daily: fresh.daily });
+  }
   if (out.season.id !== SEASON.id) out.season = { id: SEASON.id, xp: 0, claimed: {} };
   if (out.daily.date !== todayKey()) out.daily = { date: todayKey(), done: {} };
   return out;
@@ -123,7 +132,7 @@ interface State {
 
 const LOCAL_KEY = "handjam-profile";
 // The server render (and hydration) always sees a blank profile; the real one loads after mount.
-const SERVER: State = { ready: false, user: null, profile: freshProfile("Player", false) };
+const SERVER: State = { ready: false, user: null, profile: freshProfile() };
 let state: State = SERVER;
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
@@ -319,7 +328,7 @@ export async function bankSession(s: SessionSummary, placementBonus = 0, won = f
   const before = state.profile;
   const done = dailyChallenges().filter((c) => !before.daily.done[c.id] && c.check(s));
   const bonus = done.reduce((a, c) => a + c.reward, 0) + placementBonus;
-  const earned = Math.max(0, Math.min(20000, Math.round(s.cognus))); // plausibility cap per session
+  const earned = Math.max(0, Math.min(1500, Math.round(s.cognus))); // plausibility cap per session
   const after = (await mutate((p) => ({
     ...p,
     cognus: p.cognus + earned + bonus,

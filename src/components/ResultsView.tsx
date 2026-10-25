@@ -5,6 +5,7 @@ import { RotateCcw } from "lucide-react";
 import { FinanceBento } from "@/components/ui/finance-bento";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import type { Award } from "@/lib/account";
+import { comboById } from "@/lib/combos";
 import { listSessions, type SessionSummary } from "@/lib/session";
 
 /** End-of-session screen: Cognus earned and everything the session collected. */
@@ -36,7 +37,18 @@ export function ResultsView({ summary, award, onAgain }: { summary: SessionSumma
                 +<span className="text-[#E8FF1F]">{data.current.cognus}</span> Cognus
               </p>
               <p className="mt-2 text-sm text-white/60">
-                Motion {b.motion} · Variety {b.variety} · Surprise {b.surprise} · Spread {b.spread} · Combos {b.combos} · Song switches {b.songs} · Resets {b.resets}
+                Combos {b.combos ?? 0} · Style {b.style ?? 0} · Best chain ×{Math.min(2, 1 + 0.25 * (data.current.bestChain ?? 0)).toFixed(2)}
+              </p>
+              <p className="mt-2 flex flex-wrap gap-1.5 text-xs">
+                {Object.entries(data.current.combos ?? {}).length ? (
+                  Object.entries(data.current.combos ?? {}).map(([id, n]) => (
+                    <span key={id} className="rounded-full bg-white/10 px-2.5 py-1">
+                      {comboById(id)?.name ?? id} ×{n}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-white/50">No combos landed. Check the combo guide in Rewards → Season pass.</span>
+                )}
               </p>
               {award && (award.bonus > 0 || award.rankUp || award.tiersGained > 0) && (
                 <p className="mt-2 flex flex-wrap gap-2 text-sm">

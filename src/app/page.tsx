@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import AudioPlayer from "@/components/ui/audio-player";
 import { CameraBackdrop } from "@/components/CameraBackdrop";
+import { ComboToast } from "@/components/ComboToast";
 import { FinderView } from "@/components/FinderView";
 import { HandCursor } from "@/components/HandCursor";
 import { HandOverlay } from "@/components/HandOverlay";
@@ -179,6 +180,7 @@ export default function Page() {
               <p className="hud-text text-3xl font-light">
                 <span className="text-[#E8FF1F]">{state.session.cognus}</span> Cognus
               </p>
+              <ComboToast session={state.session} />
             </div>
           )}
         </>

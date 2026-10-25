@@ -85,7 +85,7 @@ function snapshot(e: Engine): EngineState {
       repeat: deck.repeat,
       error: deck.error,
     },
-    session: session ? { seconds: session.seconds, cognus: session.live() } : null,
+    session: session ? { seconds: session.seconds, ...session.live() } : null,
   };
 }
 
@@ -148,6 +148,15 @@ export function startSession() {
   e.session?.cancel();
   e.session = new SessionRecorder(() => ({
     controls: e.tracker.controls,
+    levels: {
+      speed: e.tracker.speed,
+      semi: e.tracker.semitones,
+      vol: e.tracker.controls.spread,
+      filter: e.tracker.filterAmount,
+      reverb: e.tracker.reverbAmount,
+      echo: e.tracker.controls.middleR,
+      bass: e.tracker.controls.middleL,
+    },
     left: e.tracker.hands.some((h) => h.side === "left"),
     right: e.tracker.hands.some((h) => h.side === "right"),
     title: e.deck.title,

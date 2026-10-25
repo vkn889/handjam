@@ -20,9 +20,12 @@ fills and it clicks. In the library, flick your pointing finger sideways to swip
 ## Modes
 
 * **Free play:** remix whatever is loaded.
-* **Sessions:** two minutes where changing things often, unpredictably and with many controls at
-  once earns **Cognus** (cognitive points). Switching songs mid-session scores big. At the end you
-  get a dashboard of the session: Cognus, control mix, hand activity, songs, moves per control.
+* **Sessions:** two minutes to earn **Cognus**. Cognus only comes from landing **combos**:
+  deliberate gesture patterns like Bass Drop, Tape Stop, Riser, Echo Throw, Twin Pinch, Mirror
+  Flip, Wash Out, Wobble and Full Stack (the full guide is in Rewards → Season pass). Each combo's
+  setup has to be held on purpose, so waving your hands around earns nothing. Repeating a combo pays
+  40% less each time; landing a different one within 5 s chains (+25% per link, up to ×2); every
+  distinct combo adds a style bonus. At the end you get a dashboard of the session.
 * **Library:** a disc carousel of generated tracks (synthesized in the browser), songs you've
   uploaded before (kept in this browser's IndexedDB) and songs you found.
 * **Find music:** type an artist, song or vibe. A Python function searches the iTunes Search API
@@ -39,7 +42,8 @@ fills and it clicks. In the library, flick your pointing finger sideways to swip
 
 * **Account:** email + password, Google, or guest (a guest can later add an email and keep
   everything). Without an account, progress lives in this browser and carries over when you sign in.
-* **Ranks:** Bronze → Silver → Gold → Platinum → Diamond → Legend by lifetime Cognus.
+* **Ranks:** Bronze → Silver (300) → Gold (1,200) → Platinum (3,500) → Diamond (8,000) → Legend
+  (20,000) by lifetime Cognus. A good session earns roughly 30–100.
 * **Season pass:** 30 tiers; every Cognus earned this season is pass XP. Tiers unlock bonus Cognus,
   wallpapers, songs, album rows, HUD themes and titles.
 * **Daily challenges:** three a day, the same for everyone, for bonus Cognus.
@@ -99,7 +103,8 @@ song ─► AudioWorklet: varispeed + grain pitch shifter ─► bass shelf ─�
 | `public/deck-worklet.js` | Audio-thread DSP: varispeed + pitch shifter |
 | `src/lib/tracks.ts` | Generated music recipes |
 | `src/lib/library.ts` | Uploads (IndexedDB), found songs, decoding |
-| `src/lib/session.ts` | Session recording and Cognus scoring |
+| `src/lib/session.ts` | Session recording |
+| `src/lib/combos.ts` | Combo detection and Cognus scoring |
 | `src/lib/account.ts` | Auth, profile (balance, pass, inventory, playlists), banking sessions |
 | `src/lib/catalog.ts` | Market items, ranks, season pass tiers, daily challenges |
 | `src/lib/online.ts` | Online rooms: join codes, synced start, live scores and skeletons |

@@ -1,3 +1,5 @@
+import type { ComboHit } from "@/lib/combos";
+
 type Pt = [number, number];
 
 export interface EngineState {
@@ -6,7 +8,7 @@ export interface EngineState {
   values: { speed: number; pitchHz: number; semitones: number; volume: number; filter: number; reverb: number; echo: number; bass: number };
   levels: number[];
   track: { id: string; title: string; playing: boolean; position: number; duration: number; loading: boolean; shuffle: boolean; repeat: boolean; error: string };
-  session: { seconds: number; cognus: number } | null;
+  session: { seconds: number; cognus: number; chain: number; last: ComboHit | null } | null;
 }
 
 /**

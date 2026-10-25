@@ -74,11 +74,11 @@ export type Equipped = typeof DEFAULT_EQUIPPED;
 
 export const RANKS = [
   { name: "Bronze", at: 0, color: "#C98A5A" },
-  { name: "Silver", at: 1000, color: "#C7CDD6" },
-  { name: "Gold", at: 4000, color: "#F2C14E" },
-  { name: "Platinum", at: 10000, color: "#7FE3E0" },
-  { name: "Diamond", at: 25000, color: "#8FB8FF" },
-  { name: "Legend", at: 60000, color: "#E8FF1F" },
+  { name: "Silver", at: 300, color: "#C7CDD6" },
+  { name: "Gold", at: 1200, color: "#F2C14E" },
+  { name: "Platinum", at: 3500, color: "#7FE3E0" },
+  { name: "Diamond", at: 8000, color: "#8FB8FF" },
+  { name: "Legend", at: 20000, color: "#E8FF1F" },
 ];
 
 export function rankFor(lifetime: number) {
@@ -91,7 +91,7 @@ export function rankFor(lifetime: number) {
 // ---------------------------------------------------------------- season pass
 
 export const SEASON = { id: "s1", name: "Season 1: Waves", endsAt: Date.UTC(2026, 11, 31) };
-export const XP_PER_TIER = 500;
+export const XP_PER_TIER = 150;
 
 export interface Tier {
   tier: number;
@@ -105,7 +105,7 @@ export const TIERS: Tier[] = Array.from({ length: 30 }, (_, i) => {
     5: "wp-sunset", 10: "gen-anthem", 12: "hero-hiphop", 15: "th-gold", 18: "wp-aurora",
     20: "ti-legend", 22: "gen-dnb", 25: "wp-gold", 28: "th-neon", 30: "ti-maestro",
   };
-  return items[tier] ? { tier, reward: { type: "item", id: items[tier] } } : { tier, reward: { type: "cognus", amount: 100 + tier * 20 } };
+  return items[tier] ? { tier, reward: { type: "item", id: items[tier] } } : { tier, reward: { type: "cognus", amount: 10 + tier * 2 } };
 });
 
 export const tierFor = (seasonXp: number) => Math.min(TIERS.length, Math.floor(seasonXp / XP_PER_TIER));
@@ -116,19 +116,20 @@ export interface Challenge {
   id: string;
   text: string;
   /** checked against a finished session summary */
-  check: (s: { cognus: number; moves: Record<string, number>; songs: { title: string }[]; breakdown: { combos: number } }) => boolean;
+  check: (s: { cognus: number; combos?: Record<string, number>; bestChain?: number }) => boolean;
   reward: number;
 }
 
+const landed = (s: { combos?: Record<string, number> }, id: string) => s.combos?.[id] ?? 0;
 const POOL: Challenge[] = [
-  { id: "c-echo", text: "Make 15 echo moves in one session", check: (s) => (s.moves.echo ?? 0) >= 15, reward: 150 },
-  { id: "c-bass", text: "Make 15 bass moves in one session", check: (s) => (s.moves.bass ?? 0) >= 15, reward: 150 },
-  { id: "c-songs", text: "Play 3 different songs in one session", check: (s) => new Set(s.songs.map((x) => x.title)).size >= 3, reward: 200 },
-  { id: "c-300", text: "Earn 300 Cognus in a single session", check: (s) => s.cognus >= 300, reward: 150 },
-  { id: "c-800", text: "Earn 800 Cognus in a single session", check: (s) => s.cognus >= 800, reward: 300 },
-  { id: "c-all", text: "Use all 7 controls in one session", check: (s) => Object.values(s.moves).filter((m) => m > 0).length >= 7, reward: 250 },
-  { id: "c-combo", text: "Score 60+ combo points in one session", check: (s) => (s.breakdown.combos ?? 0) >= 60, reward: 200 },
-  { id: "c-pitch", text: "Make 25 pitch moves in one session", check: (s) => (s.moves.pitch ?? 0) >= 25, reward: 150 },
+  { id: "c-drop", text: "Land 3 Bass Drops in one session", check: (s) => landed(s, "drop") >= 3, reward: 20 },
+  { id: "c-riser", text: "Land 2 Risers in one session", check: (s) => landed(s, "riser") >= 2, reward: 20 },
+  { id: "c-wash", text: "Land a Wash Out", check: (s) => landed(s, "wash") >= 1, reward: 15 },
+  { id: "c-stack", text: "Land a Full Stack", check: (s) => landed(s, "stack") >= 1, reward: 40 },
+  { id: "c-variety", text: "Land 5 different combos in one session", check: (s) => Object.keys(s.combos ?? {}).length >= 5, reward: 35 },
+  { id: "c-chain", text: "Build a 3-combo chain (×1.75)", check: (s) => (s.bestChain ?? 0) >= 3, reward: 30 },
+  { id: "c-60", text: "Earn 60 Cognus in a single session", check: (s) => s.cognus >= 60, reward: 25 },
+  { id: "c-mirror", text: "Land a Mirror Flip and a Twin Pinch in one session", check: (s) => landed(s, "mirror") >= 1 && landed(s, "twin") >= 1, reward: 30 },
 ];
 
 /** Three challenges a day, the same for everyone, picked from the date. */
